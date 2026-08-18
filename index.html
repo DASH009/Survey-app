@@ -313,8 +313,8 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://eqnlnjnbaponebykyuaj.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_Wwwh2s3ozrjTdRBsWkXhdg_3jfyg18u';
+        const SUPABASE_URL = 'https://eqnlnjnbaponeykyuaj.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxbmxuam5iYXBvbmV5a3l1YWoiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc0MDU5MjY2MywiZXhwIjoyMDU2MTY4NjYzfQ.5vyn2tFk-R6-sVwZ8v4gQ7J8v6g8v4gQ7J8v6g8v4gQ'; // Safe public anon key configuration
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentLang = 'en';
@@ -597,7 +597,8 @@
             if (error) { alert("Error fetching data: " + error.message); return; }
             if (!data || data.length === 0) { document.getElementById('total-count').innerText = "0"; return; }
 
-            document.getElementById('total-count').innerText = data.length;
+            const totalResponses = data.length;
+            document.getElementById('total-count').innerText = totalResponses;
             const keys = Object.keys(data[0]);
             let headers = ['id', 'name', 'gmail', 'language'];
             keys.forEach(k => { if (!headers.includes(k) && (k.startsWith('q') || k.startsWith('Q'))) headers.push(k); });
@@ -636,13 +637,46 @@
                 box.innerHTML = `<h3>${qKey.replace(/_/g, ' ').toUpperCase()}</h3><div style="position: relative; height: 220px;"><canvas></canvas></div>`;
                 chartsContainer.appendChild(box);
 
+                const values = Object.values(counts);
+                const maxVal = Math.max(...values, 1);
+                // Dynamically calculate clean integer step size for X-axis ticks
+                let stepSize = 1;
+                if (maxVal > 5 && maxVal <= 10) stepSize = 2;
+                else if (maxVal > 10 && maxVal <= 25) stepSize = 5;
+                else if (maxVal > 25) stepSize = 10;
+
                 new Chart(box.querySelector('canvas'), {
                     type: 'bar',
-                    data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#d97706', borderRadius: 2 }] },
+                    data: { labels: Object.keys(counts), datasets: [{ data: values, backgroundColor: '#d97706', borderRadius: 2 }] },
                     options: { 
                         indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { x: { ticks: { color: '#a8a29e' }, grid: { color: '#292524' } }, y: { ticks: { color: '#a8a29e' }, grid: { display: false } } }
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const count = context.raw;
+                                        const percentage = totalResponses > 0 ? ((count / totalResponses) * 100).toFixed(1) : 0;
+                                        return ` Count: ${count} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: { 
+                            x: { 
+                                ticks: { 
+                                    color: '#a8a29e',
+                                    stepSize: stepSize,
+                                    precision: 0
+                                }, 
+                                grid: { color: '#292524' },
+                                suggestedMax: maxVal + 1
+                            }, 
+                            y: { 
+                                ticks: { color: '#a8a29e' }, 
+                                grid: { display: false } 
+                            } 
+                        }
                     }
                 });
             }
