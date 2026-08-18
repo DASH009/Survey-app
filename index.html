@@ -143,7 +143,6 @@
 
         .hidden { display: none !important; }
 
-        /* Modal styling */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;
@@ -247,16 +246,16 @@
             <h3 id="modal-title"></h3>
             <p id="modal-desc" style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 20px;"></p>
             <div class="modal-buttons">
-                <button class="modal-btn btn-back" id="modal-btn-back" onclick="closeModal()">Go Back</button>
+                <button class="modal-btn btn-back" onclick="closeModal()">Go Back</button>
                 <button class="modal-btn btn-proceed" id="modal-btn-proceed" onclick="confirmSubmit()" style="display:none;">Yes, Submit Anyway</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Yahan apni NAYI Supabase URL aur Anon Key daal dena jo tune naye project ke liye banayi hai!
-        const SUPABASE_URL = 'eqnlnjnbaponebykyuaj.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_Wwwh2s3ozrjTdRBsWkXhdg_3jfyg18u';
+        // YAHAN APNI ASLI SUPABASE URL AUR ANON KEY DAAL:
+        const SUPABASE_URL = 'https://tzcgxnhqcxekjgzwnmk.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_BI0lxqFDJwtvUZs7dbqJTQ_QW8BHZFW';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentLang = 'en';
@@ -416,7 +415,6 @@
             event.preventDefault();
             const name = document.getElementById("userName").value.trim();
             const gmail = document.getElementById("userGmail").value.trim();
-            const problem = document.getElementById("q16").value.trim();
             const langData = data[currentLang];
 
             const proceedBtn = document.getElementById("modal-btn-proceed");
@@ -444,7 +442,7 @@
                 return;
             }
 
-            if (!isForcedSubmit && (!gmail || !problem)) {
+            if (!isForcedSubmit && (!gmail || !document.getElementById("q16").value.trim())) {
                 document.getElementById("modal-title").innerText = langData.optTitle;
                 document.getElementById("modal-desc").innerText = langData.optDesc;
                 backBtn.innerText = langData.backBtn;
