@@ -314,7 +314,7 @@
 
     <script>
         const SUPABASE_URL = 'https://eqnlnjnbaponeykyuaj.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxbmxuam5iYXBvbmV5a3l1YWoiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc0MDU5MjY2MywiZXhwIjoyMDU2MTY4NjYzfQ.5vyn2tFk-R6-sVwZ8v4gQ7J8v6g8v4gQ7J8v6g8v4gQ'; // Safe public anon key configuration
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxbmxuam5iYXBvbmV5a3l1YWoiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc0MDU5MjY2MywiZXhwIjoyMDU2MTY4NjYzfQ.5vyn2tFk-R6-sVwZ8v4gQ7J8v6g8v4gQ7J8v6g8v4gQ';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentLang = 'en';
@@ -639,7 +639,6 @@
 
                 const values = Object.values(counts);
                 const maxVal = Math.max(...values, 1);
-                // Dynamically calculate clean integer step size for X-axis ticks
                 let stepSize = 1;
                 if (maxVal > 5 && maxVal <= 10) stepSize = 2;
                 else if (maxVal > 10 && maxVal <= 25) stepSize = 5;
