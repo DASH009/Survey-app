@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Future & Career Intelligence Initiative</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -14,12 +15,14 @@
             --text-secondary: #a8a29e;
             --border-color: #292524;
             --border-focus: #d97706;
+            --accent: #d97706;
             --input-bg: #1c1917;
             --button-bg: #f5f5f4;
             --button-text: #0c0a09;
             --button-hover: #e7e5e4;
             --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         }
+
         [data-theme="light"] {
             --bg-color: #fafaf9;
             --card-bg: #ffffff;
@@ -28,106 +31,151 @@
             --text-secondary: #57534e;
             --border-color: #e7e5e4;
             --border-focus: #b45309;
+            --accent: #b45309;
             --input-bg: #f5f5f4;
             --button-bg: #1c1917;
             --button-text: #fafaf9;
             --button-hover: #292524;
             --shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
         }
+
         body {
-            font-family: 'Instrument Sans', -apple-system, sans-serif;
+            font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
             margin: 0;
-            padding: 60px 20px;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            transition: background 0.4s ease, color 0.4s ease;
         }
+
         .container {
             width: 100%;
-            max-width: 700px;
+            max-width: 800px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            padding: 50px;
+            padding: 40px;
             border-radius: 4px;
             box-shadow: var(--shadow);
             box-sizing: border-box;
+            transition: all 0.4s ease;
         }
+
         .header-flex {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 24px;
+            padding-bottom: 20px;
         }
-        h2 { margin: 0; font-size: 18px; font-weight: 600; text-transform: uppercase; }
+
+        h2 { margin: 0; font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: -0.02em; }
+        
+        .nav-btns { display: flex; gap: 10px; align-items: center; }
         .theme-toggle, .admin-link-btn {
-            cursor: pointer;
             background: transparent;
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
             padding: 8px 14px;
             border-radius: 2px;
+            cursor: pointer;
             font-size: 13px;
             font-weight: 500;
             text-decoration: none;
-            margin-left: 10px;
+            transition: all 0.2s;
         }
         .theme-toggle:hover, .admin-link-btn:hover { border-color: var(--text-primary); color: var(--text-primary); }
-        .hidden { display: none !important; }
-        .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+
+        .lang-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
         .lang-card {
             background: var(--input-bg);
             border: 1px solid var(--border-color);
-            border-radius: 4px;
             padding: 30px 24px;
+            border-radius: 4px;
             cursor: pointer;
             transition: all 0.25s ease;
         }
-        .lang-card:hover { border-color: var(--border-focus); background: var(--card-hover); transform: translateY(-2px); }
-        .lang-card h3 { margin: 0 0 6px 0; font-size: 20px; }
+
+        .lang-card:hover {
+            border-color: var(--border-focus);
+            background: var(--card-hover);
+            transform: translateY(-2px);
+        }
+
+        .lang-card h3 { margin: 0 0 6px 0; font-size: 20px; color: var(--text-primary); }
         .lang-card span { font-size: 13px; color: var(--text-secondary); }
+
         .form-group { margin-bottom: 24px; }
-        label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 13px; color: var(--text-secondary); text-transform: uppercase; }
-        input[type="text"], select, textarea {
+        label { display: block; font-size: 13px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+        
+        input[type="text"], input[type="password"], select, textarea {
             width: 100%;
             padding: 14px 16px;
             background: var(--input-bg);
-            color: var(--text-primary);
             border: 1px solid var(--border-color);
+            color: var(--text-primary);
             border-radius: 2px;
             font-size: 15px;
             box-sizing: border-box;
             outline: none;
+            transition: border-color 0.2s;
         }
-        input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--border-focus); }
-        textarea { resize: vertical; height: 110px; }
+
+        input:focus, select:focus, textarea:focus { border-color: var(--border-focus); }
+        textarea { resize: vertical; min-height: 100px; }
+
         .submit-btn, .action-btn {
             background: var(--button-bg);
             color: var(--button-text);
             border: none;
-            padding: 16px;
             width: 100%;
-            font-size: 14px;
+            padding: 16px;
+            font-weight: 600;
             text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 0.05em;
             border-radius: 2px;
             cursor: pointer;
-            font-weight: 600;
             margin-top: 10px;
+            transition: background 0.2s;
         }
         .submit-btn:hover, .action-btn:hover { background: var(--button-hover); }
+
+        .hidden { display: none !important; }
+
+        /* Admin & Dashboard Styles */
+        .stats-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--input-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 4px; }
+        .stat-card h3 { margin: 0 0 8px 0; font-size: 13px; color: var(--text-secondary); text-transform: uppercase; }
+        .stat-card p { margin: 0; font-size: 28px; font-weight: 600; color: var(--accent); }
+        .section-title { font-size: 18px; font-weight: 500; margin: 30px 0 15px 0; border-left: 3px solid var(--accent); padding-left: 10px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr; gap: 25px; margin-bottom: 40px; }
+        .chart-box { background: var(--input-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 4px; }
+        .chart-box h3 { font-size: 14px; margin-top: 0; margin-bottom: 12px; }
+        .table-container { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 4px; overflow-x: auto; max-height: 400px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        th { background: #1c1917; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 11px; }
+
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000;
         }
         .modal-box {
-            background: var(--card-bg); border: 1px solid var(--border-color); padding: 40px; border-radius: 4px; width: 90%; max-width: 420px;
+            background: var(--card-bg); border: 1px solid var(--border-color); padding: 35px; border-radius: 4px; max-width: 400px; width: 90%;
         }
-        .modal-buttons { display: flex; gap: 12px; margin-top: 30px; }
-        .modal-btn { flex: 1; padding: 12px; border-radius: 2px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); font-size: 13px; text-transform: uppercase; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 25px; }
+        .modal-btn { flex: 1; padding: 12px; border-radius: 2px; cursor: pointer; font-weight: 600; font-size: 13px; text-transform: uppercase; border: 1px solid var(--border-color); }
         .btn-back { background: transparent; color: var(--text-primary); }
         .btn-proceed { background: var(--button-bg); color: var(--button-text); border: none; }
     </style>
@@ -137,16 +185,16 @@
     <div class="container">
         <div class="header-flex">
             <div><h2 id="app-title">Future & Career Intelligence</h2></div>
-            <div>
-                <a href="admin-login.html" class="admin-link-btn">Admin 🔒</a>
+            <div class="nav-btns">
+                <button class="admin-link-btn" id="nav-admin-btn" onclick="openAdminLogin()">Admin 🔒</button>
                 <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
             </div>
         </div>
 
-        <!-- SCREEN 1: LANGUAGE -->
-        <div id="screen-lang" class="lang-screen">
-            <h3 id="intro-main-title" style="font-size: 32px; font-weight: 500; margin-top:0;">Your thoughts to build a better future</h3>
-            <p id="intro-sub-title" style="color: var(--text-secondary); font-size: 16px; margin-bottom: 40px;">Your answers are valuable for us. Be a part of the changemaker.</p>
+        <!-- VIEW 1: LANGUAGE SELECTION -->
+        <div id="view-lang" class="lang-screen">
+            <h3 style="font-size: 28px; font-weight: 500; margin-top: 0; line-height: 1.2;">Your thoughts to build a better future</h3>
+            <p style="color: var(--text-secondary); font-size: 15px; margin-bottom: 35px;">Your answers are valuable for us. Be a part of the changemaker.</p>
             <label>Select your preferred language / भाषा चुनें</label>
             <div class="lang-grid">
                 <div class="lang-card" onclick="setLanguage('en')">
@@ -160,13 +208,13 @@
             </div>
         </div>
 
-        <!-- SCREEN 2: FORM -->
-        <div id="screen-form" class="hidden">
+        <!-- VIEW 2: SURVEY FORM -->
+        <div id="view-form" class="hidden">
             <div style="margin-bottom: 30px;">
-                <h2 id="form-main-title" style="margin: 0 0 8px 0; font-size: 24px; font-weight: 500;"></h2>
-                <h3 id="form-alt-title" style="margin: 0 0 12px 0; font-size: 16px; color: var(--border-focus); font-weight: 500;"></h3>
-                <p id="survey-desc" style="color: var(--text-secondary); font-size: 15px; margin: 0;"></p>
-                <p id="survey-desc-alt" style="color: var(--text-secondary); font-size: 15px; margin: 6px 0 0 0;"></p>
+                <h2 id="form-main-title" style="margin: 0 0 6px 0; font-size: 22px; font-weight: 500;"></h2>
+                <h3 id="form-alt-title" style="margin: 0 0 10px 0; font-size: 15px; color: var(--border-focus); font-weight: 500;"></h3>
+                <p id="survey-desc" style="color: var(--text-secondary); font-size: 14px; margin: 0; line-height: 1.5;"></p>
+                <p id="survey-desc-alt" style="color: var(--text-secondary); font-size: 14px; margin: 4px 0 0 0; line-height: 1.5;"></p>
             </div>
             
             <form id="surveyForm" onsubmit="handleFormSubmit(event)">
@@ -199,11 +247,56 @@
             </form>
         </div>
 
-        <!-- SCREEN 3: SUCCESS -->
-        <div id="screen-success" class="hidden" style="text-align: center; padding: 40px 0;">
-            <h3 id="success-msg" style="font-size: 24px; font-weight: 500; margin-bottom: 16px;"></h3>
-            <p id="success-sub-msg" style="color: var(--text-secondary); font-size: 16px; margin-bottom: 30px;"></p>
+        <!-- VIEW 3: SUCCESS -->
+        <div id="view-success" class="hidden" style="text-align: center; padding: 40px 0;">
+            <h3 id="success-msg" style="font-size: 22px; font-weight: 500; margin-bottom: 12px;"></h3>
+            <p id="success-sub-msg" style="color: var(--text-secondary); font-size: 15px; line-height: 1.6; margin-bottom: 30px;"></p>
             <button class="action-btn" onclick="resetSurvey()" id="restart-btn-text" style="max-width: 250px; margin: 0 auto;">Start New Survey</button>
+        </div>
+
+        <!-- VIEW 4: ADMIN LOGIN -->
+        <div id="view-admin-login" class="hidden">
+            <h3 style="margin-top:0; font-size: 20px; font-weight: 500;">Admin Authentication</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 25px;">Enter your password to access analytics and survey responses.</p>
+            <form onsubmit="verifyAdmin(event)">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="adminPassInput" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="submit-btn">Access Portal</button>
+                <p id="admin-err" style="color: #ef4444; font-size: 13px; margin-top: 10px; display:none;">Incorrect password. Please try again.</p>
+            </form>
+            <button class="action-btn" onclick="goToHome()" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); margin-top: 15px;">← Back to Survey</button>
+        </div>
+
+        <!-- VIEW 5: ADMIN DASHBOARD -->
+        <div id="view-admin-dashboard" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                <h3 style="margin:0; font-size: 18px;">📊 Admin Analytics Portal</h3>
+                <div>
+                    <button onclick="clearDatabase()" class="admin-link-btn" style="color: #ef4444; border-color: #ef4444;">Clear Data 🗑️</button>
+                    <button onclick="adminLogout()" class="admin-link-btn">Logout 🔒</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Responses</h3>
+                    <p id="total-count">0</p>
+                </div>
+            </div>
+
+            <div class="section-title">Visual Analytics & Question Breakdown</div>
+            <div class="charts-grid" id="charts-container"></div>
+
+            <div class="section-title">All Raw Entries (Table View)</div>
+            <div class="table-container">
+                <table id="responses-table">
+                    <thead><tr id="table-head"></tr></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <button class="action-btn" onclick="goToHome()" style="margin-top: 25px;">← Back to Survey Form</button>
         </div>
     </div>
 
@@ -306,6 +399,13 @@
             }
         };
 
+        function switchView(viewId) {
+            ['view-lang', 'view-form', 'view-success', 'view-admin-login', 'view-admin-dashboard'].forEach(v => {
+                document.getElementById(v).classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
         function toggleTheme() {
             const html = document.documentElement;
             html.setAttribute("data-theme", html.getAttribute("data-theme") === "dark" ? "light" : "dark");
@@ -313,8 +413,7 @@
 
         function setLanguage(lang) {
             currentLang = lang;
-            document.getElementById("screen-lang").classList.add("hidden");
-            document.getElementById("screen-form").classList.remove("hidden");
+            switchView('view-form');
             
             const langData = data[lang];
             document.getElementById("app-title").innerText = langData.appTitle;
@@ -447,8 +546,7 @@
             if (error) {
                 alert("Error saving data: " + error.message);
             } else {
-                document.getElementById("screen-form").classList.add("hidden");
-                document.getElementById("screen-success").classList.remove("hidden");
+                switchView('view-success');
                 const langData = data[currentLang];
                 document.getElementById("success-msg").innerText = langData.successMain;
                 document.getElementById("success-sub-msg").innerText = langData.successSub;
@@ -459,8 +557,103 @@
         function resetSurvey() {
             document.getElementById("surveyForm").reset();
             isForcedSubmit = false;
-            document.getElementById("screen-success").classList.add("hidden");
-            document.getElementById("screen-lang").classList.remove("hidden");
+            switchView('view-lang');
+        }
+
+        function openAdminLogin() {
+            if (localStorage.getItem("admin_logged_in") === "true") {
+                loadAdminDashboard();
+            } else {
+                document.getElementById("adminPassInput").value = "";
+                document.getElementById("admin-err").style.display = "none";
+                switchView('view-admin-login');
+            }
+        }
+
+        function verifyAdmin(e) {
+            e.preventDefault();
+            const pass = document.getElementById("adminPassInput").value;
+            if (pass === "jhakaas") {
+                localStorage.setItem("admin_logged_in", "true");
+                loadAdminDashboard();
+            } else {
+                document.getElementById("admin-err").style.display = "block";
+            }
+        }
+
+        function adminLogout() {
+            localStorage.removeItem("admin_logged_in");
+            goToHome();
+        }
+
+        function goToHome() {
+            switchView('view-lang');
+        }
+
+        async function loadAdminDashboard() {
+            switchView('view-admin-dashboard');
+            const { data, error } = await supabaseClient.from('responses').select('*').order('id', { ascending: true });
+            
+            if (error) { alert("Error fetching data: " + error.message); return; }
+            if (!data || data.length === 0) { document.getElementById('total-count').innerText = "0"; return; }
+
+            document.getElementById('total-count').innerText = data.length;
+            const keys = Object.keys(data[0]);
+            let headers = ['id', 'name', 'gmail', 'language'];
+            keys.forEach(k => { if (!headers.includes(k) && (k.startsWith('q') || k.startsWith('Q'))) headers.push(k); });
+            if(headers.length <= 4) headers = keys;
+            
+            const headTr = document.getElementById('table-head');
+            headTr.innerHTML = '';
+            headers.forEach(h => {
+                const th = document.createElement('th');
+                th.innerText = h.replace(/_/g, ' ').toUpperCase();
+                headTr.appendChild(th);
+            });
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                headers.forEach(h => {
+                    const td = document.createElement('td');
+                    td.innerText = row[h] !== undefined && row[h] !== null ? row[h] : '-';
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+
+            const chartsContainer = document.getElementById('charts-container');
+            chartsContainer.innerHTML = '';
+            for(let i = 1; i <= 15; i++) {
+                const qKey = keys.find(h => h.toLowerCase() === `q${i}` || h.toLowerCase().startsWith(`q${i}_`));
+                if(!qKey) continue;
+                const counts = {};
+                data.forEach(row => { const val = row[qKey] || 'Unanswered'; counts[val] = (counts[val] || 0) + 1; });
+
+                const box = document.createElement('div');
+                box.className = 'chart-box';
+                box.innerHTML = `<h3>${qKey.replace(/_/g, ' ').toUpperCase()}</h3><div style="position: relative; height: 220px;"><canvas></canvas></div>`;
+                chartsContainer.appendChild(box);
+
+                new Chart(box.querySelector('canvas'), {
+                    type: 'bar',
+                    data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: '#d97706', borderRadius: 2 }] },
+                    options: { 
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { x: { ticks: { color: '#a8a29e' }, grid: { color: '#292524' } }, y: { ticks: { color: '#a8a29e' }, grid: { display: false } } }
+                    }
+                });
+            }
+        }
+
+        async function clearDatabase() {
+            if(confirm("Do you want to clear all responses?")) {
+                const { error } = await supabaseClient.from('responses').delete().neq('id', 0);
+                if(!error) loadAdminDashboard();
+                else alert("Failed: " + error.message);
+            }
         }
     </script>
 </body>
